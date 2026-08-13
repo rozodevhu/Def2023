@@ -8,11 +8,11 @@ app = Flask(__name__)
 sock = Sock(app)
 DB_FILE = "database.db"
 
-# ==================== 🛠️ AUTOMATED COMPREHENSIVE DB SETUP ====================
+# ==================== 🛠️ AUTOMATED DATA ARCHITECTURE SETUP ====================
 def init_complete_db():
     with sqlite3.connect(DB_FILE) as conn:
         cursor = conn.cursor()
-        # Master user profile tracking
+        # Profiles tracking levels, tokens, and visual parameters
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY,
@@ -24,7 +24,7 @@ def init_complete_db():
                 avatar_settings TEXT
             )
         ''')
-        # Inventory locker table
+        # Permanent purchase transaction storage
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS inventory (
                 player_id INTEGER,
@@ -33,33 +33,34 @@ def init_complete_db():
                 PRIMARY KEY (player_id, item_id)
             )
         ''')
-        # Save custom map creations
+        # Custom Maker Pen room string storage
         cursor.execute('''
-            CREATE TABLE IF NOT EXISTS maps (
-                map_id TEXT PRIMARY KEY,
-                map_data TEXT
+            CREATE TABLE IF NOT EXISTS custom_worlds (
+                world_id TEXT PRIMARY KEY,
+                world_name TEXT,
+                world_data TEXT
             )
         ''')
         
-        # Populate initial unlocked developer account
+        # Default Developer Profile
         default_avatar = '{"Version":4,"SkinColor":2,"HairType":3,"OutfitType":12,"Equipment":[]}'
         cursor.execute('''
             INSERT OR IGNORE INTO users (id, username, display_name, avatar_settings)
-            VALUES (1, 'LocalHostAdmin', 'Local Host Admin', ?)
+            VALUES (1, 'RecRoomAdmin', 'RecRoom Admin', ?)
         ''', (default_avatar,))
         conn.commit()
 
 init_complete_db()
 
-# RAM pools for live connection tracking
+# Synchronized session memory arrays
 online_sockets = {}
 live_lobbies = {}
 
-# ==================== ⌚ 1. WATCH HANDSHAKE & CONFIG ENFORCEMENT ====================
+# ==================== ⌚ 1. MASTER WATCH INTERFACE HANDSHAKES ====================
 
 @app.route('/api/config/v2', methods=['GET'])
 def pull_watch_features():
-    """Forces the Watch Menu UI elements to populate completely."""
+    """Unlocks storefront loops, challenge feeds, and custom creations on the Watch."""
     return jsonify({
         "App.MinVersion": "20190101",
         "Sandbox.Enabled": True,
@@ -75,10 +76,11 @@ def pull_watch_features():
 
 @app.route('/api/v1/login', methods=['POST'])
 def gatekeeper_login():
+    """Handles immediate authentication when the user signs in."""
     return jsonify({
-        "Token": "master_unlocked_localhost_session_secret",
+        "Token": "secure_unlocked_localhost_session_secret_token",
         "PlayerId": 1,
-        "ScreenName": "LocalHostAdmin",
+        "ScreenName": "RecRoomAdmin",
         "Status": 0
     })
 
@@ -95,61 +97,61 @@ def view_watch_profile(player_id):
             })
     return jsonify({"Id": 1, "ScreenName": "Guest", "Username": "Guest", "DisplayName": "Guest", "RegistrationStatus": 2, "Level": 1, "XP": 0})
 
-# ==================== 💰 2. TOKENS, STOREFRONT & WATCH PURCHASES ====================
+# ==================== 💰 2. UNLIMITED TOKENS & ITEM SHOP PURCHASING ====================
 
 @app.route('/api/currency/v1/wallet', methods=['GET'])
 def output_watch_wallet():
-    """Feeds token balances directly onto your Watch HUD display interface."""
+    """Feeds dynamic token balance tracking straight onto the Watch display."""
     with sqlite3.connect(DB_FILE) as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT tokens FROM users WHERE id = 1")
-        tokens = cursor.fetchone()[0]
+        row = cursor.fetchone()
+        tokens = row[0] if row else 999999
     return jsonify([{"CurrencyType": 0, "Balance": tokens}])
 
 @app.route('/api/storefront/v3/giftpackages', methods=['GET'])
 def pull_storefront_catalog():
-    """Populates items inside the Watch Store selection list menus."""
+    """Dynamically populates every cosmetic selection row in the Store tab."""
     mock_catalog = []
-    # Loop generates functional visual inventory selections inside the item shop panels
-    for i in range(1, 200):
+    # Loop generates 500 working cosmetic items inside the Watch's physical listing interface
+    for i in range(1, 500):
         mock_catalog.append({
             "PackageId": i,
             "AvatarItemId": i,
             "ItemType": 1,
-            "Cost": 100,  # Costs 100 Tokens to buy
-            "Name": f"Custom Cosmetic Gear #{i}",
-            "Description": "Unlocked via local host emulator engine server console."
+            "Cost": 250,  # Each item costs 250 tokens
+            "Name": f"Cosmetic Gear Pro #{i}",
+            "Description": "Unlocked via custom repository engine patch configurations."
         })
     return jsonify(mock_catalog)
 
 @app.route('/api/storefront/v3/buy', methods=['POST'])
 def execute_watch_purchase():
-    """Processes real-time cosmetic acquisition transactions using tokens via your Watch."""
+    """Handles real-time item collection balance tracking when you click 'Buy'."""
     data = request.json or {}
     item_id = data.get("AvatarItemId", 1)
-    cost = data.get("Cost", 100)
+    cost = data.get("Cost", 250)
     
     with sqlite3.connect(DB_FILE) as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT tokens FROM users WHERE id = 1")
-        current_tokens = cursor.fetchone()[0]
+        row = cursor.fetchone()
+        current_tokens = row[0] if row else 0
         
         if current_tokens >= cost:
             new_balance = current_tokens - cost
-            # Subtract tokens
             cursor.execute("UPDATE users SET tokens = ? WHERE id = 1", (new_balance,))
-            # Grant item permanently to locker inventory
             cursor.execute("INSERT OR IGNORE INTO inventory (player_id, item_id) VALUES (1, ?)", (item_id,))
             conn.commit()
-            return jsonify({"Result": 0, "Message": "Purchase successful! Locker updated."})
+            return jsonify({"Result": 0, "Message": "Locker registry updated successfully!"})
             
-    return jsonify({"Result": 1, "Message": "Insufficient tokens for purchase."})
+    return jsonify({"Result": 1, "Message": "Insufficient balance allocation."})
 
-# ==================== 💇 3. HAIR, CLOTHING & OUTFIT LOCKER SAVES ====================
+# ==================== 💇 3. MIRROR CONFIGURATION, HAIR, & OUTFIT LOCKERS ====================
 
 @app.route('/api/avatar/v2', methods=['GET'])
 def retrieve_watch_mirror_avatar():
-    """Loads hair, facial adjustments, and matching clothes when viewing mirrors."""
+    """Loads your configured cosmetic models instantly when standing at the mirror."""
     with sqlite3.connect(DB_FILE) as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT avatar_settings FROM users WHERE id = 1")
@@ -160,7 +162,7 @@ def retrieve_watch_mirror_avatar():
 
 @app.route('/api/avatar/v2/saved', methods=['POST'])
 def save_mirror_customizations():
-    """Triggered instantly when modifying your hair, nose, or attire adjustments."""
+    """Triggered instantly when updating hair, faces, skin, or clothes styles."""
     data = request.json or {}
     payload_string = json.dumps(data)
     with sqlite3.connect(DB_FILE) as conn:
@@ -171,13 +173,12 @@ def save_mirror_customizations():
 
 @app.route('/api/playeritems/v1/get', methods=['GET'])
 def compile_locker_items():
-    """Combines baseline default styles with items purchased from the shop."""
+    """Merges base structural patterns with items purchased from the storefront."""
     unlocked_locker = []
-    # Always include baseline choices (hair, simple shirts) automatically
-    for item in range(1, 500):
+    # Generates baseline clothing selections automatically
+    for item in range(1, 400):
         unlocked_locker.append({"ItemType": 1, "ItemId": item, "Count": 1, "IsEquipped": False})
         
-    # Append custom items successfully bought using your local store wallet
     with sqlite3.connect(DB_FILE) as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT item_id FROM inventory WHERE player_id = 1")
@@ -187,17 +188,17 @@ def compile_locker_items():
             
     return jsonify(unlocked_locker)
 
-# ==================== 🌐 4. WATCH ROOM MULTIPLAYER SELECTION ====================
+# ==================== 🌐 4. ROOM ROUTING ENGINE ====================
 
 @app.route('/api/matchmaking/v4/joinroom', methods=['POST'])
 def select_watch_room():
-    """Allows players to jump between environments using the 'Play' screen."""
+    """Allows movement between maps (Orientation, Paintball, Lounge) via the Watch UI."""
     data = request.json or {}
-    room_title = data.get("RoomName", "Lounge")
+    room_title = data.get("RoomName", "Orientation")
     room_hash = str(hash(room_title) & 0xffffffff)
     
     if room_hash not in live_lobbies:
-        live_lobbies[room_hash] = {"Name": room_title, "Players": [1]}
+        live_lobbies[room_hash] = {"Name": room_title, "Players": []}
         
     return jsonify({
         "Result": 0,
@@ -208,16 +209,16 @@ def select_watch_room():
             "Players": live_lobbies[room_hash]["Players"]
         },
         "PhotonRegion": "USW",
-        "PhotonServerAddress": "127.0.0.1:5055",  # Relies on local running loop logic
+        "PhotonServerAddress": "127.0.0.1:5055",  # Pointing straight to a local Photon loop
         "CustomRoomId": str(uuid.uuid4())
     })
 
-# ==================== 💬 5. REAL-TIME WATCH NOTIFICATION SYNC ====================
+# ==================== 💬 5. REAL-TIME SIGNAL SYNCHRONIZATION ====================
 
 @sock.route('/hub/v1/notification')
 def monitor_watch_socket(ws):
     try:
-        handshake = ws.receive()
+        ws.receive()
         online_sockets[1] = ws
         while True:
             packet = ws.receive()
